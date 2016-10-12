@@ -1,0 +1,7 @@
+{
+    "require": {
+        "workerman/workerman": "^3.3",
+        "apache/thrift": "^0.9.3",
+        "chrisboulton/php-resque": "^1.2"
+    }
+}
