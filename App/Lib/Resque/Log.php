@@ -8,12 +8,6 @@
  */
 class Resque_Log extends Psr\Log\AbstractLogger
 {
-	public $verbose;
-
-	public function __construct($verbose = true) {
-		$this->verbose = $verbose;
-	}
-
 	/**
 	 * Logs with an arbitrary level.
 	 *
@@ -24,7 +18,9 @@ class Resque_Log extends Psr\Log\AbstractLogger
 	 */
 	public function log($level, $message, array $context = array())
 	{
-        Workerman\Worker::log('Resque[' . $level . '] ' . $this->interpolate($message, $context));
+        if (!($level === Psr\Log\LogLevel::INFO || $level === Psr\Log\LogLevel::DEBUG)) {
+            Workerman\Worker::log('Resque[' . $level . '] ' . $this->interpolate($message, $context));
+        }
 	}
 
 	/**
