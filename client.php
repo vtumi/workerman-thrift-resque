@@ -5,7 +5,7 @@ use Thrift\Protocol\TBinaryProtocol;
 use Thrift\Transport\TSocket;
 use Thrift\Transport\TBufferedTransport;
 use App\Thrift\Service\Resque\ResqueClient;
-use App\Thrift\Service\Resque\Params;
+use App\Thrift\Service\Resque\Request;
 
 // Init
 $socket = new TSocket('127.0.0.1', 9090);
@@ -21,11 +21,11 @@ $socket->setRecvTimeout(30 * 1000);
 $transport->open();
 
 // Call...
-$params = new Params();
-$params->queue = 'default';
-$params->job = 'Demo';
-$params->params = ['str' => 'this is a test!'];
-$response = $client->enqueue($params);
+$request = new Request();
+$request->queue = 'default';
+$request->job = 'Demo';
+$request->params = ['str' => 'this is a test!'];
+$response = $client->enqueue($request);
 
 // Print response...
 var_dump($response);
