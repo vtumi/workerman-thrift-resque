@@ -16,8 +16,7 @@ use Thrift\Protocol\TProtocol;
 use Thrift\Protocol\TBinaryProtocolAccelerated;
 use Thrift\Exception\TApplicationException;
 
-class Request
-{
+class Request {
     static $_TSPEC;
 
     /**
@@ -31,14 +30,13 @@ class Request
     /**
      * @var array
      */
-    public $request = null;
+    public $params = null;
     /**
      * @var bool
      */
     public $trackStatus = false;
 
-    public function __construct($vals = null)
-    {
+    public function __construct($vals=null) {
         if (!isset(self::$_TSPEC)) {
             self::$_TSPEC = array(
                 1 => array(
@@ -50,7 +48,7 @@ class Request
                     'type' => TType::STRING,
                 ),
                 3 => array(
-                    'var' => 'request',
+                    'var' => 'params',
                     'type' => TType::MAP,
                     'ktype' => TType::STRING,
                     'vtype' => TType::STRING,
@@ -74,8 +72,8 @@ class Request
             if (isset($vals['job'])) {
                 $this->job = $vals['job'];
             }
-            if (isset($vals['request'])) {
-                $this->request = $vals['request'];
+            if (isset($vals['params'])) {
+                $this->params = $vals['params'];
             }
             if (isset($vals['trackStatus'])) {
                 $this->trackStatus = $vals['trackStatus'];
@@ -83,8 +81,7 @@ class Request
         }
     }
 
-    public function getName()
-    {
+    public function getName() {
         return 'Request';
     }
 
@@ -95,12 +92,14 @@ class Request
         $ftype = 0;
         $fid = 0;
         $xfer += $input->readStructBegin($fname);
-        while (true) {
+        while (true)
+        {
             $xfer += $input->readFieldBegin($fname, $ftype, $fid);
             if ($ftype == TType::STOP) {
                 break;
             }
-            switch ($fid) {
+            switch ($fid)
+            {
                 case 1:
                     if ($ftype == TType::STRING) {
                         $xfer += $input->readString($this->queue);
@@ -117,17 +116,18 @@ class Request
                     break;
                 case 3:
                     if ($ftype == TType::MAP) {
-                        $this->request = array();
+                        $this->params = array();
                         $_size0 = 0;
                         $_ktype1 = 0;
                         $_vtype2 = 0;
                         $xfer += $input->readMapBegin($_ktype1, $_vtype2, $_size0);
-                        for ($_i4 = 0; $_i4 < $_size0; ++$_i4) {
+                        for ($_i4 = 0; $_i4 < $_size0; ++$_i4)
+                        {
                             $key5 = '';
                             $val6 = '';
                             $xfer += $input->readString($key5);
                             $xfer += $input->readString($val6);
-                            $this->request[$key5] = $val6;
+                            $this->params[$key5] = $val6;
                         }
                         $xfer += $input->readMapEnd();
                     } else {
@@ -151,8 +151,7 @@ class Request
         return $xfer;
     }
 
-    public function write($output)
-    {
+    public function write($output) {
         $xfer = 0;
         $xfer += $output->writeStructBegin('Request');
         if ($this->queue !== null) {
@@ -165,15 +164,16 @@ class Request
             $xfer += $output->writeString($this->job);
             $xfer += $output->writeFieldEnd();
         }
-        if ($this->request !== null) {
-            if (!is_array($this->request)) {
+        if ($this->params !== null) {
+            if (!is_array($this->params)) {
                 throw new TProtocolException('Bad type in structure.', TProtocolException::INVALID_DATA);
             }
-            $xfer += $output->writeFieldBegin('request', TType::MAP, 3);
+            $xfer += $output->writeFieldBegin('params', TType::MAP, 3);
             {
-                $output->writeMapBegin(TType::STRING, TType::STRING, count($this->request));
+                $output->writeMapBegin(TType::STRING, TType::STRING, count($this->params));
                 {
-                    foreach ($this->request as $kiter7 => $viter8) {
+                    foreach ($this->params as $kiter7 => $viter8)
+                    {
                         $xfer += $output->writeString($kiter7);
                         $xfer += $output->writeString($viter8);
                     }
@@ -194,8 +194,7 @@ class Request
 
 }
 
-class InvalidValueException extends TException
-{
+class InvalidValueException extends TException {
     static $_TSPEC;
 
     /**
@@ -207,8 +206,7 @@ class InvalidValueException extends TException
      */
     public $error_msg = null;
 
-    public function __construct($vals = null)
-    {
+    public function __construct($vals=null) {
         if (!isset(self::$_TSPEC)) {
             self::$_TSPEC = array(
                 1 => array(
@@ -231,8 +229,7 @@ class InvalidValueException extends TException
         }
     }
 
-    public function getName()
-    {
+    public function getName() {
         return 'InvalidValueException';
     }
 
@@ -243,12 +240,14 @@ class InvalidValueException extends TException
         $ftype = 0;
         $fid = 0;
         $xfer += $input->readStructBegin($fname);
-        while (true) {
+        while (true)
+        {
             $xfer += $input->readFieldBegin($fname, $ftype, $fid);
             if ($ftype == TType::STOP) {
                 break;
             }
-            switch ($fid) {
+            switch ($fid)
+            {
                 case 1:
                     if ($ftype == TType::I32) {
                         $xfer += $input->readI32($this->error_code);
@@ -273,8 +272,7 @@ class InvalidValueException extends TException
         return $xfer;
     }
 
-    public function write($output)
-    {
+    public function write($output) {
         $xfer = 0;
         $xfer += $output->writeStructBegin('InvalidValueException');
         if ($this->error_code !== null) {

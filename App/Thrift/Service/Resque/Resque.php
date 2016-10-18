@@ -16,8 +16,7 @@ use Thrift\Protocol\TProtocol;
 use Thrift\Protocol\TBinaryProtocolAccelerated;
 use Thrift\Exception\TApplicationException;
 
-interface ResqueIf
-{
+interface ResqueIf {
     /**
      * @param \App\Thrift\Service\Resque\Request $request
      * @return string
@@ -26,15 +25,13 @@ interface ResqueIf
     public function enqueue(\App\Thrift\Service\Resque\Request $request);
 }
 
-class ResqueClient implements \App\Thrift\Service\Resque\ResqueIf
-{
+class ResqueClient implements \App\Thrift\Service\Resque\ResqueIf {
     protected $input_ = null;
     protected $output_ = null;
 
     protected $seqid_ = 0;
 
-    public function __construct($input, $output = null)
-    {
+    public function __construct($input, $output=null) {
         $this->input_ = $input;
         $this->output_ = $output ? $output : $input;
     }
@@ -50,9 +47,12 @@ class ResqueClient implements \App\Thrift\Service\Resque\ResqueIf
         $args = new \App\Thrift\Service\Resque\Resque_enqueue_args();
         $args->request = $request;
         $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
-        if ($bin_accel) {
+        if ($bin_accel)
+        {
             thrift_protocol_write_binary($this->output_, 'enqueue', TMessageType::CALL, $args, $this->seqid_, $this->output_->isStrictWrite());
-        } else {
+        }
+        else
+        {
             $this->output_->writeMessageBegin('enqueue', TMessageType::CALL, $this->seqid_);
             $args->write($this->output_);
             $this->output_->writeMessageEnd();
@@ -64,7 +64,8 @@ class ResqueClient implements \App\Thrift\Service\Resque\ResqueIf
     {
         $bin_accel = ($this->input_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_read_binary');
         if ($bin_accel) $result = thrift_protocol_read_binary($this->input_, '\App\Thrift\Service\Resque\Resque_enqueue_result', $this->input_->isStrictRead());
-        else {
+        else
+        {
             $rseqid = 0;
             $fname = null;
             $mtype = 0;
@@ -93,8 +94,7 @@ class ResqueClient implements \App\Thrift\Service\Resque\ResqueIf
 
 // HELPER FUNCTIONS AND STRUCTURES
 
-class Resque_enqueue_args
-{
+class Resque_enqueue_args {
     static $_TSPEC;
 
     /**
@@ -102,8 +102,7 @@ class Resque_enqueue_args
      */
     public $request = null;
 
-    public function __construct($vals = null)
-    {
+    public function __construct($vals=null) {
         if (!isset(self::$_TSPEC)) {
             self::$_TSPEC = array(
                 1 => array(
@@ -120,8 +119,7 @@ class Resque_enqueue_args
         }
     }
 
-    public function getName()
-    {
+    public function getName() {
         return 'Resque_enqueue_args';
     }
 
@@ -132,12 +130,14 @@ class Resque_enqueue_args
         $ftype = 0;
         $fid = 0;
         $xfer += $input->readStructBegin($fname);
-        while (true) {
+        while (true)
+        {
             $xfer += $input->readFieldBegin($fname, $ftype, $fid);
             if ($ftype == TType::STOP) {
                 break;
             }
-            switch ($fid) {
+            switch ($fid)
+            {
                 case 1:
                     if ($ftype == TType::STRUCT) {
                         $this->request = new \App\Thrift\Service\Resque\Request();
@@ -156,8 +156,7 @@ class Resque_enqueue_args
         return $xfer;
     }
 
-    public function write($output)
-    {
+    public function write($output) {
         $xfer = 0;
         $xfer += $output->writeStructBegin('Resque_enqueue_args');
         if ($this->request !== null) {
@@ -175,8 +174,7 @@ class Resque_enqueue_args
 
 }
 
-class Resque_enqueue_result
-{
+class Resque_enqueue_result {
     static $_TSPEC;
 
     /**
@@ -188,8 +186,7 @@ class Resque_enqueue_result
      */
     public $e = null;
 
-    public function __construct($vals = null)
-    {
+    public function __construct($vals=null) {
         if (!isset(self::$_TSPEC)) {
             self::$_TSPEC = array(
                 0 => array(
@@ -213,8 +210,7 @@ class Resque_enqueue_result
         }
     }
 
-    public function getName()
-    {
+    public function getName() {
         return 'Resque_enqueue_result';
     }
 
@@ -225,12 +221,14 @@ class Resque_enqueue_result
         $ftype = 0;
         $fid = 0;
         $xfer += $input->readStructBegin($fname);
-        while (true) {
+        while (true)
+        {
             $xfer += $input->readFieldBegin($fname, $ftype, $fid);
             if ($ftype == TType::STOP) {
                 break;
             }
-            switch ($fid) {
+            switch ($fid)
+            {
                 case 0:
                     if ($ftype == TType::STRING) {
                         $xfer += $input->readString($this->success);
@@ -256,8 +254,7 @@ class Resque_enqueue_result
         return $xfer;
     }
 
-    public function write($output)
-    {
+    public function write($output) {
         $xfer = 0;
         $xfer += $output->writeStructBegin('Resque_enqueue_result');
         if ($this->success !== null) {
@@ -277,27 +274,23 @@ class Resque_enqueue_result
 
 }
 
-class ResqueProcessor
-{
+class ResqueProcessor {
     protected $handler_ = null;
-
-    public function __construct($handler)
-    {
+    public function __construct($handler) {
         $this->handler_ = $handler;
     }
 
-    public function process($input, $output)
-    {
+    public function process($input, $output) {
         $rseqid = 0;
         $fname = null;
         $mtype = 0;
 
         $input->readMessageBegin($fname, $mtype, $rseqid);
-        $methodname = 'process_' . $fname;
+        $methodname = 'process_'.$fname;
         if (!method_exists($this, $methodname)) {
             $input->skip(TType::STRUCT);
             $input->readMessageEnd();
-            $x = new TApplicationException('Function ' . $fname . ' not implemented.', TApplicationException::UNKNOWN_METHOD);
+            $x = new TApplicationException('Function '.$fname.' not implemented.', TApplicationException::UNKNOWN_METHOD);
             $output->writeMessageBegin($fname, TMessageType::EXCEPTION, $rseqid);
             $x->write($output);
             $output->writeMessageEnd();
@@ -308,8 +301,7 @@ class ResqueProcessor
         return true;
     }
 
-    protected function process_enqueue($seqid, $input, $output)
-    {
+    protected function process_enqueue($seqid, $input, $output) {
         $args = new \App\Thrift\Service\Resque\Resque_enqueue_args();
         $args->read($input);
         $input->readMessageEnd();
@@ -320,9 +312,12 @@ class ResqueProcessor
             $result->e = $e;
         }
         $bin_accel = ($output instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
-        if ($bin_accel) {
+        if ($bin_accel)
+        {
             thrift_protocol_write_binary($output, 'enqueue', TMessageType::REPLY, $result, $seqid, $output->isStrictWrite());
-        } else {
+        }
+        else
+        {
             $output->writeMessageBegin('enqueue', TMessageType::REPLY, $seqid);
             $result->write($output);
             $output->writeMessageEnd();
