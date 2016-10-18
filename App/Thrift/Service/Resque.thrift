@@ -1,6 +1,6 @@
 namespace php App.Thrift.Service.Resque
 
-struct Params {
+struct Request {
     1: string queue,
     2: string job,
     3: optional map<string, string> params,
@@ -14,5 +14,5 @@ exception InvalidValueException {
 
 service Resque
 {
-    string enqueue(1:Params params) throws (1: InvalidValueException e);
+    string enqueue(1:Request request) throws (1: InvalidValueException e);
 }

@@ -16,7 +16,7 @@ use Thrift\Protocol\TProtocol;
 use Thrift\Protocol\TBinaryProtocolAccelerated;
 use Thrift\Exception\TApplicationException;
 
-class Params
+class Request
 {
     static $_TSPEC;
 
@@ -31,7 +31,7 @@ class Params
     /**
      * @var array
      */
-    public $params = null;
+    public $request = null;
     /**
      * @var bool
      */
@@ -50,7 +50,7 @@ class Params
                     'type' => TType::STRING,
                 ),
                 3 => array(
-                    'var' => 'params',
+                    'var' => 'request',
                     'type' => TType::MAP,
                     'ktype' => TType::STRING,
                     'vtype' => TType::STRING,
@@ -74,8 +74,8 @@ class Params
             if (isset($vals['job'])) {
                 $this->job = $vals['job'];
             }
-            if (isset($vals['params'])) {
-                $this->params = $vals['params'];
+            if (isset($vals['request'])) {
+                $this->request = $vals['request'];
             }
             if (isset($vals['trackStatus'])) {
                 $this->trackStatus = $vals['trackStatus'];
@@ -85,7 +85,7 @@ class Params
 
     public function getName()
     {
-        return 'Params';
+        return 'Request';
     }
 
     public function read($input)
@@ -117,7 +117,7 @@ class Params
                     break;
                 case 3:
                     if ($ftype == TType::MAP) {
-                        $this->params = array();
+                        $this->request = array();
                         $_size0 = 0;
                         $_ktype1 = 0;
                         $_vtype2 = 0;
@@ -127,7 +127,7 @@ class Params
                             $val6 = '';
                             $xfer += $input->readString($key5);
                             $xfer += $input->readString($val6);
-                            $this->params[$key5] = $val6;
+                            $this->request[$key5] = $val6;
                         }
                         $xfer += $input->readMapEnd();
                     } else {
@@ -154,7 +154,7 @@ class Params
     public function write($output)
     {
         $xfer = 0;
-        $xfer += $output->writeStructBegin('Params');
+        $xfer += $output->writeStructBegin('Request');
         if ($this->queue !== null) {
             $xfer += $output->writeFieldBegin('queue', TType::STRING, 1);
             $xfer += $output->writeString($this->queue);
@@ -165,15 +165,15 @@ class Params
             $xfer += $output->writeString($this->job);
             $xfer += $output->writeFieldEnd();
         }
-        if ($this->params !== null) {
-            if (!is_array($this->params)) {
+        if ($this->request !== null) {
+            if (!is_array($this->request)) {
                 throw new TProtocolException('Bad type in structure.', TProtocolException::INVALID_DATA);
             }
-            $xfer += $output->writeFieldBegin('params', TType::MAP, 3);
+            $xfer += $output->writeFieldBegin('request', TType::MAP, 3);
             {
-                $output->writeMapBegin(TType::STRING, TType::STRING, count($this->params));
+                $output->writeMapBegin(TType::STRING, TType::STRING, count($this->request));
                 {
-                    foreach ($this->params as $kiter7 => $viter8) {
+                    foreach ($this->request as $kiter7 => $viter8) {
                         $xfer += $output->writeString($kiter7);
                         $xfer += $output->writeString($viter8);
                     }

@@ -5,8 +5,8 @@ use Resque;
 
 class ResqueHandler implements ResqueIf
 {
-    public function enqueue(Params $params)
+    public function enqueue(Request $request)
     {
-        return Resque::enqueue($params->queue, "\\App\\Resque\\Job\\" . $params->job, $params->params, $params->trackStatus);
+        return Resque::enqueue($request->queue, "\\App\\Resque\\Job\\" . $request->job, $request->params, $request->trackStatus);
     }
 }

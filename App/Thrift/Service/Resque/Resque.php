@@ -19,11 +19,11 @@ use Thrift\Exception\TApplicationException;
 interface ResqueIf
 {
     /**
-     * @param \App\Thrift\Service\Resque\Params $params
+     * @param \App\Thrift\Service\Resque\Request $request
      * @return string
      * @throws \App\Thrift\Service\Resque\InvalidValueException
      */
-    public function enqueue(\App\Thrift\Service\Resque\Params $params);
+    public function enqueue(\App\Thrift\Service\Resque\Request $request);
 }
 
 class ResqueClient implements \App\Thrift\Service\Resque\ResqueIf
@@ -39,16 +39,16 @@ class ResqueClient implements \App\Thrift\Service\Resque\ResqueIf
         $this->output_ = $output ? $output : $input;
     }
 
-    public function enqueue(\App\Thrift\Service\Resque\Params $params)
+    public function enqueue(\App\Thrift\Service\Resque\Request $request)
     {
-        $this->send_enqueue($params);
+        $this->send_enqueue($request);
         return $this->recv_enqueue();
     }
 
-    public function send_enqueue(\App\Thrift\Service\Resque\Params $params)
+    public function send_enqueue(\App\Thrift\Service\Resque\Request $request)
     {
         $args = new \App\Thrift\Service\Resque\Resque_enqueue_args();
-        $args->params = $params;
+        $args->request = $request;
         $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
         if ($bin_accel) {
             thrift_protocol_write_binary($this->output_, 'enqueue', TMessageType::CALL, $args, $this->seqid_, $this->output_->isStrictWrite());
@@ -98,24 +98,24 @@ class Resque_enqueue_args
     static $_TSPEC;
 
     /**
-     * @var \App\Thrift\Service\Resque\Params
+     * @var \App\Thrift\Service\Resque\Request
      */
-    public $params = null;
+    public $request = null;
 
     public function __construct($vals = null)
     {
         if (!isset(self::$_TSPEC)) {
             self::$_TSPEC = array(
                 1 => array(
-                    'var' => 'params',
+                    'var' => 'request',
                     'type' => TType::STRUCT,
-                    'class' => '\App\Thrift\Service\Resque\Params',
+                    'class' => '\App\Thrift\Service\Resque\Request',
                 ),
             );
         }
         if (is_array($vals)) {
-            if (isset($vals['params'])) {
-                $this->params = $vals['params'];
+            if (isset($vals['request'])) {
+                $this->request = $vals['request'];
             }
         }
     }
@@ -140,8 +140,8 @@ class Resque_enqueue_args
             switch ($fid) {
                 case 1:
                     if ($ftype == TType::STRUCT) {
-                        $this->params = new \App\Thrift\Service\Resque\Params();
-                        $xfer += $this->params->read($input);
+                        $this->request = new \App\Thrift\Service\Resque\Request();
+                        $xfer += $this->request->read($input);
                     } else {
                         $xfer += $input->skip($ftype);
                     }
@@ -160,12 +160,12 @@ class Resque_enqueue_args
     {
         $xfer = 0;
         $xfer += $output->writeStructBegin('Resque_enqueue_args');
-        if ($this->params !== null) {
-            if (!is_object($this->params)) {
+        if ($this->request !== null) {
+            if (!is_object($this->request)) {
                 throw new TProtocolException('Bad type in structure.', TProtocolException::INVALID_DATA);
             }
-            $xfer += $output->writeFieldBegin('params', TType::STRUCT, 1);
-            $xfer += $this->params->write($output);
+            $xfer += $output->writeFieldBegin('request', TType::STRUCT, 1);
+            $xfer += $this->request->write($output);
             $xfer += $output->writeFieldEnd();
         }
         $xfer += $output->writeFieldStop();
@@ -315,7 +315,7 @@ class ResqueProcessor
         $input->readMessageEnd();
         $result = new \App\Thrift\Service\Resque\Resque_enqueue_result();
         try {
-            $result->success = $this->handler_->enqueue($args->params);
+            $result->success = $this->handler_->enqueue($args->request);
         } catch (\App\Thrift\Service\Resque\InvalidValueException $e) {
             $result->e = $e;
         }
