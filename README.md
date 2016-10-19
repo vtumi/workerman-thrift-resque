@@ -11,6 +11,9 @@ workerman-thrift-resque
 创建项目
 ----------
 
+Composer  
+`composer create-project --prefer-dist tumi/workerman-thrift-resque:dev-master`
+
 安装使用Thrift
 ----------
 
