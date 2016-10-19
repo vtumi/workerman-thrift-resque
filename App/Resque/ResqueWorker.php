@@ -21,6 +21,12 @@ class ResqueWorker extends Worker
     public $server = '127.0.0.1:6379';
 
     /**
+     * 设置日志级别
+     * @var integer
+     */
+    public $logLevel = 0;
+
+    /**
      * 设置监视队列
      * @var string
      */
@@ -42,7 +48,7 @@ class ResqueWorker extends Worker
         $worker = null;
         $this->onWorkerStart = function () use (&$worker) {
             Resque::setBackend($this->server);
-            $logger = new Resque_Log();
+            $logger = new Resque_Log($this->logLevel);
 
             $queues = explode(',', $this->queue);
             $worker = new Resque_Worker($queues);
