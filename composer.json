@@ -1,4 +1,20 @@
 {
+  "name": "tumi/workerman-thrift-resque",
+  "type": "project",
+  "description": "Thrift RPC and Resque based on workerman.",
+  "keywords": [
+    "workerman",
+    "thrift",
+    "resque"
+  ],
+  "homepage": "https://github.com/vtumi/workerman-thrift-resque",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "tumi",
+      "email": "tumi@phphy.com"
+    }
+  ],
   "require": {
     "workerman/workerman": "^3.3",
     "apache/thrift": "^0.9.3",
