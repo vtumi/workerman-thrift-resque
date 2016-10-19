@@ -3,7 +3,7 @@ workerman-thrift-resque
 
 配置运行环境
 ----------
-[配置教程](http://www.workerman.net/install){:target="_blank"}
+[配置教程](http://www.workerman.net/install)
 
 安装Redis
 ----------
