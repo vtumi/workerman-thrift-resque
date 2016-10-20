@@ -20,18 +20,47 @@ $socket->setRecvTimeout(30 * 1000);
 // Connect
 $transport->open();
 
-// Call...
+// 添加作业
 $request = new Request();
 $request->queue = 'default';
 $request->job = 'Demo';
 $request->params = ['str' => 'this is a test!'];
 $request->trackStatus = true;
 $response = $client->enqueue($request);
-$status = $client->track($response);
+
+// 删除作业
+/*
+$request = new Request();
+$request->queue = 'default';
+$request->job = 'Demo';
+$response = $client->dequeue($request);
+
+$request = new Request();
+$request->queue = 'default';
+$request->job = 'Demo';
+$request->id = '';
+$response = $client->dequeue($request);
+
+$request = new Request();
+$request->queue = 'default';
+$request->job = 'Demo';
+$request->params = ['str' => 'this is a test!'];
+$response = $client->dequeue($request);
+
+$request = new Request();
+$request->queue = 'default';
+$request->jobs = ['Demo1', 'Demo2'];
+$response = $client->dequeue($request);
+ */
+
+// 作业状态
+/*
+$id = '';
+$response = $client->track($id);
+*/
 
 // Print response...
 var_dump($response);
-var_dump($status);
 
 // Close
 $transport->close();
