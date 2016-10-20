@@ -3,6 +3,7 @@ workerman-thrift-resque
 
 配置运行环境
 ----------
+
 [配置教程](http://www.workerman.net/install)
 
 安装Redis
@@ -11,14 +12,32 @@ workerman-thrift-resque
 创建项目
 ----------
 
-Composer  
-`composer create-project --prefer-dist tumi/workerman-thrift-resque:dev-master`
+Composer
+```sh
+composer create-project --prefer-dist tumi/workerman-thrift-resque:dev-master
+```
 
 安装使用Thrift
 ----------
 
+[在线文档](http://thrift.apache.org/docs/)
+
 添加作业到队列
 ----------
+
+直接添加
+```php
+require_once __DIR__ . '/vendor/autoload.php';
+  
+use Resque;
+  
+Resque::setBackend('127.0.0.1:6379');
+  
+$args = ['str' => 'This is a test!'];
+Resque::enqueue('default', 'Demo', $args);
+```
+
+使用Thrift添加（参考client.php）
 
 定义作业处理类
 ----------
@@ -26,17 +45,27 @@ Composer
 启动停止
 ----------
 
-启动  
-`php start.php start -d`
+启动
+```sh
+php start.php start -d
+```
 
-重启  
-`php start.php restart`
+重启
+```sh
+php start.php restart
+```
 
 平滑重启  
-`php start.php reload`
+```sh
+php start.php reload
+```
 
-查看状态  
-`php start.php status`
+查看状态
+```sh
+php start.php status
+```
 
-停止  
-`php start.php stop`
+停止
+```sh
+php start.php stop
+```
