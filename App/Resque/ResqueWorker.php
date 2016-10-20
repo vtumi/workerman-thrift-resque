@@ -6,11 +6,12 @@
  */
 namespace App\Resque;
 
+use Psr\Log\LogLevel;
 use Resque;
 use Resque_Log;
 use Resque_Worker;
 use Workerman\Worker;
-use Psr\Log\LogLevel;
+use Workerman\Lib\Timer;
 
 class ResqueWorker extends Worker
 {
@@ -55,7 +56,7 @@ class ResqueWorker extends Worker
             $worker->setLogger($logger);
             $logger->log(LogLevel::NOTICE, 'Starting worker {worker}', array('worker' => $worker));
             $worker->startup();
-            Workerman\Lib\Timer::add($this->interval, function () use ($worker) {
+            Timer::add($this->interval, function () use ($worker) {
                 $worker->work();
             });
         };
