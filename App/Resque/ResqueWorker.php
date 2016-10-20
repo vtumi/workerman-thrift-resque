@@ -6,10 +6,10 @@
  */
 namespace App\Resque;
 
-use Psr\Log\LogLevel;
 use Resque;
 use Resque_Log;
 use Resque_Worker;
+use Psr\Log\LogLevel;
 use Workerman\Worker;
 use Workerman\Lib\Timer;
 
