@@ -24,10 +24,10 @@ composer create-project --prefer-dist tumi/workerman-thrift-resque:dev-master
 
 [在线文档](http://thrift.apache.org/docs/)
 
-添加作业到队列（PHP）
+管理队列（PHP）
 ----------
 
-直接添加
+添加作业
 ```php
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -39,7 +39,25 @@ $args = ['str' => 'This is a test!'];
 Resque::enqueue('default', 'Demo', $args);
 ```
 
-通过Thrift RPC添加（参考client.php）
+删除作业
+```php
+Resque::dequeue('default', ['Demo']);
+
+Resque::dequeue('default', ['Demo' => $id]);
+
+Resque::dequeue('default', ['Demo' => ['str' => 'This is a test!']]);
+
+Resque::dequeue('default', ['Demo1', 'Demo2']);
+```
+
+查询状态
+```php
+// Resque::enqueue('default', 'Demo', $args, true); 添加作业时
+$status = new Resque_Job_Status($token);
+$status->get();
+```
+
+通过Thrift RPC（参考client.php）
 
 定义作业处理类
 ----------

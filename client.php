@@ -25,7 +25,6 @@ $request = new Request();
 $request->queue = 'default';
 $request->job = 'Demo';
 $request->params = ['str' => 'this is a test!'];
-$request->trackStatus = true;
 $response = $client->enqueue($request);
 
 // 删除作业
@@ -53,9 +52,9 @@ $request->jobs = ['Demo1', 'Demo2'];
 $response = $client->dequeue($request);
  */
 
-// 作业状态
+// 查询状态
 /*
-$id = '';
+// $request->trackStatus = true; 添加作业时
 $response = $client->track($id);
 */
 
