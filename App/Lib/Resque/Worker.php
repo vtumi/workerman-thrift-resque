@@ -120,40 +120,32 @@ class Resque_Worker
     }
 
     /**
-     * The primary loop for a worker which when called on an instance starts
-     * the worker's life cycle.
+     * The loop for a worker.
      *
-     * Queues are checked every $interval (seconds) for new jobs.
-     *
-     * @param int $interval How often to check for new jobs across the queues.
+     * Queues are checked for new jobs.
      */
-    public function work($interval = Resque::DEFAULT_INTERVAL)
+    public function work()
     {
-        $this->updateProcLine('Starting');
-        $this->startup();
+        while (true) {
+            // Attempt to find and reserve a job
+            $this->updateProcLine('Waiting for ' . implode(',', $this->queues));
+            $job = $this->reserve();
 
-        Workerman\Lib\Timer::add($interval, function () use (&$timer_id, $interval) {
-            while (true) {
-                // Attempt to find and reserve a job
-                $this->updateProcLine('Waiting for ' . implode(',', $this->queues));
-                $job = $this->reserve();
-
-                if (!$job) {
-                    return;
-                }
-
-                $this->logger->log(Psr\Log\LogLevel::NOTICE, 'Starting work on {job}', array('job' => $job));
-                Resque_Event::trigger('beforeFork', $job);
-                $this->workingOn($job);
-
-                $status = 'Processing ' . $job->queue . ' since ' . strftime('%F %T');
-                $this->updateProcLine($status);
-                $this->logger->log(Psr\Log\LogLevel::INFO, $status);
-                $this->perform($job);
-
-                $this->doneWorking();
+            if (!$job) {
+                return;
             }
-        });
+
+            $this->logger->log(Psr\Log\LogLevel::NOTICE, 'Starting work on {job}', array('job' => $job));
+            Resque_Event::trigger('beforeFork', $job);
+            $this->workingOn($job);
+
+            $status = 'Processing ' . $job->queue . ' since ' . strftime('%F %T');
+            $this->updateProcLine($status);
+            $this->logger->log(Psr\Log\LogLevel::INFO, $status);
+            $this->perform($job);
+
+            $this->doneWorking();
+        }
     }
 
     /**
@@ -233,8 +225,9 @@ class Resque_Worker
     /**
      * Perform necessary actions to start a worker.
      */
-    private function startup()
+    public function startup()
     {
+        $this->updateProcLine('Starting');
         $this->pruneDeadWorkers();
         Resque_Event::trigger('beforeFirstFork', $this);
         $this->registerWorker();

@@ -36,7 +36,7 @@ class ResqueWorker extends Worker
      * 设置定时器
      * @var float
      */
-    public $interval = 0.5;
+    public $interval = 1;
 
     /**
      * construct
@@ -54,7 +54,10 @@ class ResqueWorker extends Worker
             $worker = new Resque_Worker($queues);
             $worker->setLogger($logger);
             $logger->log(LogLevel::NOTICE, 'Starting worker {worker}', array('worker' => $worker));
-            $worker->work($this->interval);
+            $worker->startup();
+            Workerman\Lib\Timer::add($this->interval, function () use ($worker) {
+                $worker->work();
+            });
         };
         $this->onWorkerStop = function () use (&$worker) {
             $worker->unregisterWorker();
