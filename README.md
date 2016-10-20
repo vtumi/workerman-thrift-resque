@@ -9,6 +9,8 @@ workerman-thrift-resque
 安装Redis
 ----------
 
+[安装教程](http://redis.cn/download.html)
+
 创建项目
 ----------
 
@@ -22,7 +24,7 @@ composer create-project --prefer-dist tumi/workerman-thrift-resque:dev-master
 
 [在线文档](http://thrift.apache.org/docs/)
 
-添加作业到队列
+添加作业到队列（PHP）
 ----------
 
 直接添加
@@ -37,10 +39,37 @@ $args = ['str' => 'This is a test!'];
 Resque::enqueue('default', 'Demo', $args);
 ```
 
-使用Thrift添加（参考client.php）
+通过Thrift RPC添加（参考client.php）
 
 定义作业处理类
 ----------
+
+普通作业
+```php
+namespace App\Resque\Job;
+
+class Demo
+{
+    public function perform()
+    {
+        \Workerman\Worker::log($this->args['str']);
+    }
+}
+```
+
+延时作业
+```php
+namespace App\Resque\Job;
+
+class Demo
+{
+    public function perform()
+    {
+        sleep(300);
+        \Workerman\Worker::log($this->args['str']);
+    }
+}
+```
 
 启动停止
 ----------
