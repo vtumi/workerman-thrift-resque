@@ -28,11 +28,11 @@ composer create-project --prefer-dist tumi/workerman-thrift-resque:dev-master
 直接添加
 ```php
 require_once __DIR__ . '/vendor/autoload.php';
-  
+
 use Resque;
-  
+
 Resque::setBackend('127.0.0.1:6379');
-  
+
 $args = ['str' => 'This is a test!'];
 Resque::enqueue('default', 'Demo', $args);
 ```
