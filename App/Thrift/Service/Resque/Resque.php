@@ -16,6 +16,7 @@ use Thrift\Protocol\TProtocol;
 use Thrift\Protocol\TBinaryProtocolAccelerated;
 use Thrift\Exception\TApplicationException;
 
+
 interface ResqueIf {
     /**
      * @param \App\Thrift\Service\Resque\Request $request
@@ -23,6 +24,18 @@ interface ResqueIf {
      * @throws \App\Thrift\Service\Resque\InvalidValueException
      */
     public function enqueue(\App\Thrift\Service\Resque\Request $request);
+    /**
+     * @param \App\Thrift\Service\Resque\Request $request
+     * @return bool
+     * @throws \App\Thrift\Service\Resque\InvalidValueException
+     */
+    public function dequeue(\App\Thrift\Service\Resque\Request $request);
+    /**
+     * @param string $id
+     * @return int
+     * @throws \App\Thrift\Service\Resque\InvalidValueException
+     */
+    public function track($id);
 }
 
 class ResqueClient implements \App\Thrift\Service\Resque\ResqueIf {
@@ -88,6 +101,114 @@ class ResqueClient implements \App\Thrift\Service\Resque\ResqueIf {
             throw $result->e;
         }
         throw new \Exception("enqueue failed: unknown result");
+    }
+
+    public function dequeue(\App\Thrift\Service\Resque\Request $request)
+    {
+        $this->send_dequeue($request);
+        return $this->recv_dequeue();
+    }
+
+    public function send_dequeue(\App\Thrift\Service\Resque\Request $request)
+    {
+        $args = new \App\Thrift\Service\Resque\Resque_dequeue_args();
+        $args->request = $request;
+        $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
+        if ($bin_accel)
+        {
+            thrift_protocol_write_binary($this->output_, 'dequeue', TMessageType::CALL, $args, $this->seqid_, $this->output_->isStrictWrite());
+        }
+        else
+        {
+            $this->output_->writeMessageBegin('dequeue', TMessageType::CALL, $this->seqid_);
+            $args->write($this->output_);
+            $this->output_->writeMessageEnd();
+            $this->output_->getTransport()->flush();
+        }
+    }
+
+    public function recv_dequeue()
+    {
+        $bin_accel = ($this->input_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_read_binary');
+        if ($bin_accel) $result = thrift_protocol_read_binary($this->input_, '\App\Thrift\Service\Resque\Resque_dequeue_result', $this->input_->isStrictRead());
+        else
+        {
+            $rseqid = 0;
+            $fname = null;
+            $mtype = 0;
+
+            $this->input_->readMessageBegin($fname, $mtype, $rseqid);
+            if ($mtype == TMessageType::EXCEPTION) {
+                $x = new TApplicationException();
+                $x->read($this->input_);
+                $this->input_->readMessageEnd();
+                throw $x;
+            }
+            $result = new \App\Thrift\Service\Resque\Resque_dequeue_result();
+            $result->read($this->input_);
+            $this->input_->readMessageEnd();
+        }
+        if ($result->success !== null) {
+            return $result->success;
+        }
+        if ($result->e !== null) {
+            throw $result->e;
+        }
+        throw new \Exception("dequeue failed: unknown result");
+    }
+
+    public function track($id)
+    {
+        $this->send_track($id);
+        return $this->recv_track();
+    }
+
+    public function send_track($id)
+    {
+        $args = new \App\Thrift\Service\Resque\Resque_track_args();
+        $args->id = $id;
+        $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
+        if ($bin_accel)
+        {
+            thrift_protocol_write_binary($this->output_, 'track', TMessageType::CALL, $args, $this->seqid_, $this->output_->isStrictWrite());
+        }
+        else
+        {
+            $this->output_->writeMessageBegin('track', TMessageType::CALL, $this->seqid_);
+            $args->write($this->output_);
+            $this->output_->writeMessageEnd();
+            $this->output_->getTransport()->flush();
+        }
+    }
+
+    public function recv_track()
+    {
+        $bin_accel = ($this->input_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_read_binary');
+        if ($bin_accel) $result = thrift_protocol_read_binary($this->input_, '\App\Thrift\Service\Resque\Resque_track_result', $this->input_->isStrictRead());
+        else
+        {
+            $rseqid = 0;
+            $fname = null;
+            $mtype = 0;
+
+            $this->input_->readMessageBegin($fname, $mtype, $rseqid);
+            if ($mtype == TMessageType::EXCEPTION) {
+                $x = new TApplicationException();
+                $x->read($this->input_);
+                $this->input_->readMessageEnd();
+                throw $x;
+            }
+            $result = new \App\Thrift\Service\Resque\Resque_track_result();
+            $result->read($this->input_);
+            $this->input_->readMessageEnd();
+        }
+        if ($result->success !== null) {
+            return $result->success;
+        }
+        if ($result->e !== null) {
+            throw $result->e;
+        }
+        throw new \Exception("track failed: unknown result");
     }
 
 }
@@ -274,6 +395,361 @@ class Resque_enqueue_result {
 
 }
 
+class Resque_dequeue_args {
+    static $_TSPEC;
+
+    /**
+     * @var \App\Thrift\Service\Resque\Request
+     */
+    public $request = null;
+
+    public function __construct($vals=null) {
+        if (!isset(self::$_TSPEC)) {
+            self::$_TSPEC = array(
+                1 => array(
+                    'var' => 'request',
+                    'type' => TType::STRUCT,
+                    'class' => '\App\Thrift\Service\Resque\Request',
+                ),
+            );
+        }
+        if (is_array($vals)) {
+            if (isset($vals['request'])) {
+                $this->request = $vals['request'];
+            }
+        }
+    }
+
+    public function getName() {
+        return 'Resque_dequeue_args';
+    }
+
+    public function read($input)
+    {
+        $xfer = 0;
+        $fname = null;
+        $ftype = 0;
+        $fid = 0;
+        $xfer += $input->readStructBegin($fname);
+        while (true)
+        {
+            $xfer += $input->readFieldBegin($fname, $ftype, $fid);
+            if ($ftype == TType::STOP) {
+                break;
+            }
+            switch ($fid)
+            {
+                case 1:
+                    if ($ftype == TType::STRUCT) {
+                        $this->request = new \App\Thrift\Service\Resque\Request();
+                        $xfer += $this->request->read($input);
+                    } else {
+                        $xfer += $input->skip($ftype);
+                    }
+                    break;
+                default:
+                    $xfer += $input->skip($ftype);
+                    break;
+            }
+            $xfer += $input->readFieldEnd();
+        }
+        $xfer += $input->readStructEnd();
+        return $xfer;
+    }
+
+    public function write($output) {
+        $xfer = 0;
+        $xfer += $output->writeStructBegin('Resque_dequeue_args');
+        if ($this->request !== null) {
+            if (!is_object($this->request)) {
+                throw new TProtocolException('Bad type in structure.', TProtocolException::INVALID_DATA);
+            }
+            $xfer += $output->writeFieldBegin('request', TType::STRUCT, 1);
+            $xfer += $this->request->write($output);
+            $xfer += $output->writeFieldEnd();
+        }
+        $xfer += $output->writeFieldStop();
+        $xfer += $output->writeStructEnd();
+        return $xfer;
+    }
+
+}
+
+class Resque_dequeue_result {
+    static $_TSPEC;
+
+    /**
+     * @var bool
+     */
+    public $success = null;
+    /**
+     * @var \App\Thrift\Service\Resque\InvalidValueException
+     */
+    public $e = null;
+
+    public function __construct($vals=null) {
+        if (!isset(self::$_TSPEC)) {
+            self::$_TSPEC = array(
+                0 => array(
+                    'var' => 'success',
+                    'type' => TType::BOOL,
+                ),
+                1 => array(
+                    'var' => 'e',
+                    'type' => TType::STRUCT,
+                    'class' => '\App\Thrift\Service\Resque\InvalidValueException',
+                ),
+            );
+        }
+        if (is_array($vals)) {
+            if (isset($vals['success'])) {
+                $this->success = $vals['success'];
+            }
+            if (isset($vals['e'])) {
+                $this->e = $vals['e'];
+            }
+        }
+    }
+
+    public function getName() {
+        return 'Resque_dequeue_result';
+    }
+
+    public function read($input)
+    {
+        $xfer = 0;
+        $fname = null;
+        $ftype = 0;
+        $fid = 0;
+        $xfer += $input->readStructBegin($fname);
+        while (true)
+        {
+            $xfer += $input->readFieldBegin($fname, $ftype, $fid);
+            if ($ftype == TType::STOP) {
+                break;
+            }
+            switch ($fid)
+            {
+                case 0:
+                    if ($ftype == TType::BOOL) {
+                        $xfer += $input->readBool($this->success);
+                    } else {
+                        $xfer += $input->skip($ftype);
+                    }
+                    break;
+                case 1:
+                    if ($ftype == TType::STRUCT) {
+                        $this->e = new \App\Thrift\Service\Resque\InvalidValueException();
+                        $xfer += $this->e->read($input);
+                    } else {
+                        $xfer += $input->skip($ftype);
+                    }
+                    break;
+                default:
+                    $xfer += $input->skip($ftype);
+                    break;
+            }
+            $xfer += $input->readFieldEnd();
+        }
+        $xfer += $input->readStructEnd();
+        return $xfer;
+    }
+
+    public function write($output) {
+        $xfer = 0;
+        $xfer += $output->writeStructBegin('Resque_dequeue_result');
+        if ($this->success !== null) {
+            $xfer += $output->writeFieldBegin('success', TType::BOOL, 0);
+            $xfer += $output->writeBool($this->success);
+            $xfer += $output->writeFieldEnd();
+        }
+        if ($this->e !== null) {
+            $xfer += $output->writeFieldBegin('e', TType::STRUCT, 1);
+            $xfer += $this->e->write($output);
+            $xfer += $output->writeFieldEnd();
+        }
+        $xfer += $output->writeFieldStop();
+        $xfer += $output->writeStructEnd();
+        return $xfer;
+    }
+
+}
+
+class Resque_track_args {
+    static $_TSPEC;
+
+    /**
+     * @var string
+     */
+    public $id = null;
+
+    public function __construct($vals=null) {
+        if (!isset(self::$_TSPEC)) {
+            self::$_TSPEC = array(
+                1 => array(
+                    'var' => 'id',
+                    'type' => TType::STRING,
+                ),
+            );
+        }
+        if (is_array($vals)) {
+            if (isset($vals['id'])) {
+                $this->id = $vals['id'];
+            }
+        }
+    }
+
+    public function getName() {
+        return 'Resque_track_args';
+    }
+
+    public function read($input)
+    {
+        $xfer = 0;
+        $fname = null;
+        $ftype = 0;
+        $fid = 0;
+        $xfer += $input->readStructBegin($fname);
+        while (true)
+        {
+            $xfer += $input->readFieldBegin($fname, $ftype, $fid);
+            if ($ftype == TType::STOP) {
+                break;
+            }
+            switch ($fid)
+            {
+                case 1:
+                    if ($ftype == TType::STRING) {
+                        $xfer += $input->readString($this->id);
+                    } else {
+                        $xfer += $input->skip($ftype);
+                    }
+                    break;
+                default:
+                    $xfer += $input->skip($ftype);
+                    break;
+            }
+            $xfer += $input->readFieldEnd();
+        }
+        $xfer += $input->readStructEnd();
+        return $xfer;
+    }
+
+    public function write($output) {
+        $xfer = 0;
+        $xfer += $output->writeStructBegin('Resque_track_args');
+        if ($this->id !== null) {
+            $xfer += $output->writeFieldBegin('id', TType::STRING, 1);
+            $xfer += $output->writeString($this->id);
+            $xfer += $output->writeFieldEnd();
+        }
+        $xfer += $output->writeFieldStop();
+        $xfer += $output->writeStructEnd();
+        return $xfer;
+    }
+
+}
+
+class Resque_track_result {
+    static $_TSPEC;
+
+    /**
+     * @var int
+     */
+    public $success = null;
+    /**
+     * @var \App\Thrift\Service\Resque\InvalidValueException
+     */
+    public $e = null;
+
+    public function __construct($vals=null) {
+        if (!isset(self::$_TSPEC)) {
+            self::$_TSPEC = array(
+                0 => array(
+                    'var' => 'success',
+                    'type' => TType::I32,
+                ),
+                1 => array(
+                    'var' => 'e',
+                    'type' => TType::STRUCT,
+                    'class' => '\App\Thrift\Service\Resque\InvalidValueException',
+                ),
+            );
+        }
+        if (is_array($vals)) {
+            if (isset($vals['success'])) {
+                $this->success = $vals['success'];
+            }
+            if (isset($vals['e'])) {
+                $this->e = $vals['e'];
+            }
+        }
+    }
+
+    public function getName() {
+        return 'Resque_track_result';
+    }
+
+    public function read($input)
+    {
+        $xfer = 0;
+        $fname = null;
+        $ftype = 0;
+        $fid = 0;
+        $xfer += $input->readStructBegin($fname);
+        while (true)
+        {
+            $xfer += $input->readFieldBegin($fname, $ftype, $fid);
+            if ($ftype == TType::STOP) {
+                break;
+            }
+            switch ($fid)
+            {
+                case 0:
+                    if ($ftype == TType::I32) {
+                        $xfer += $input->readI32($this->success);
+                    } else {
+                        $xfer += $input->skip($ftype);
+                    }
+                    break;
+                case 1:
+                    if ($ftype == TType::STRUCT) {
+                        $this->e = new \App\Thrift\Service\Resque\InvalidValueException();
+                        $xfer += $this->e->read($input);
+                    } else {
+                        $xfer += $input->skip($ftype);
+                    }
+                    break;
+                default:
+                    $xfer += $input->skip($ftype);
+                    break;
+            }
+            $xfer += $input->readFieldEnd();
+        }
+        $xfer += $input->readStructEnd();
+        return $xfer;
+    }
+
+    public function write($output) {
+        $xfer = 0;
+        $xfer += $output->writeStructBegin('Resque_track_result');
+        if ($this->success !== null) {
+            $xfer += $output->writeFieldBegin('success', TType::I32, 0);
+            $xfer += $output->writeI32($this->success);
+            $xfer += $output->writeFieldEnd();
+        }
+        if ($this->e !== null) {
+            $xfer += $output->writeFieldBegin('e', TType::STRUCT, 1);
+            $xfer += $this->e->write($output);
+            $xfer += $output->writeFieldEnd();
+        }
+        $xfer += $output->writeFieldStop();
+        $xfer += $output->writeStructEnd();
+        return $xfer;
+    }
+
+}
+
 class ResqueProcessor {
     protected $handler_ = null;
     public function __construct($handler) {
@@ -319,6 +795,52 @@ class ResqueProcessor {
         else
         {
             $output->writeMessageBegin('enqueue', TMessageType::REPLY, $seqid);
+            $result->write($output);
+            $output->writeMessageEnd();
+            $output->getTransport()->flush();
+        }
+    }
+    protected function process_dequeue($seqid, $input, $output) {
+        $args = new \App\Thrift\Service\Resque\Resque_dequeue_args();
+        $args->read($input);
+        $input->readMessageEnd();
+        $result = new \App\Thrift\Service\Resque\Resque_dequeue_result();
+        try {
+            $result->success = $this->handler_->dequeue($args->request);
+        } catch (\App\Thrift\Service\Resque\InvalidValueException $e) {
+            $result->e = $e;
+        }
+        $bin_accel = ($output instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
+        if ($bin_accel)
+        {
+            thrift_protocol_write_binary($output, 'dequeue', TMessageType::REPLY, $result, $seqid, $output->isStrictWrite());
+        }
+        else
+        {
+            $output->writeMessageBegin('dequeue', TMessageType::REPLY, $seqid);
+            $result->write($output);
+            $output->writeMessageEnd();
+            $output->getTransport()->flush();
+        }
+    }
+    protected function process_track($seqid, $input, $output) {
+        $args = new \App\Thrift\Service\Resque\Resque_track_args();
+        $args->read($input);
+        $input->readMessageEnd();
+        $result = new \App\Thrift\Service\Resque\Resque_track_result();
+        try {
+            $result->success = $this->handler_->track($args->id);
+        } catch (\App\Thrift\Service\Resque\InvalidValueException $e) {
+            $result->e = $e;
+        }
+        $bin_accel = ($output instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
+        if ($bin_accel)
+        {
+            thrift_protocol_write_binary($output, 'track', TMessageType::REPLY, $result, $seqid, $output->isStrictWrite());
+        }
+        else
+        {
+            $output->writeMessageBegin('track', TMessageType::REPLY, $seqid);
             $result->write($output);
             $output->writeMessageEnd();
             $output->getTransport()->flush();

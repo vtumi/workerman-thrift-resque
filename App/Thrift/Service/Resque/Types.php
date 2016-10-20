@@ -16,6 +16,7 @@ use Thrift\Protocol\TProtocol;
 use Thrift\Protocol\TBinaryProtocolAccelerated;
 use Thrift\Exception\TApplicationException;
 
+
 class Request {
     static $_TSPEC;
 
@@ -35,6 +36,14 @@ class Request {
      * @var bool
      */
     public $trackStatus = false;
+    /**
+     * @var string
+     */
+    public $id = null;
+    /**
+     * @var string[]
+     */
+    public $jobs = null;
 
     public function __construct($vals=null) {
         if (!isset(self::$_TSPEC)) {
@@ -63,6 +72,18 @@ class Request {
                     'var' => 'trackStatus',
                     'type' => TType::BOOL,
                 ),
+                5 => array(
+                    'var' => 'id',
+                    'type' => TType::STRING,
+                ),
+                6 => array(
+                    'var' => 'jobs',
+                    'type' => TType::LST,
+                    'etype' => TType::STRING,
+                    'elem' => array(
+                        'type' => TType::STRING,
+                    ),
+                ),
             );
         }
         if (is_array($vals)) {
@@ -77,6 +98,12 @@ class Request {
             }
             if (isset($vals['trackStatus'])) {
                 $this->trackStatus = $vals['trackStatus'];
+            }
+            if (isset($vals['id'])) {
+                $this->id = $vals['id'];
+            }
+            if (isset($vals['jobs'])) {
+                $this->jobs = $vals['jobs'];
             }
         }
     }
@@ -141,6 +168,30 @@ class Request {
                         $xfer += $input->skip($ftype);
                     }
                     break;
+                case 5:
+                    if ($ftype == TType::STRING) {
+                        $xfer += $input->readString($this->id);
+                    } else {
+                        $xfer += $input->skip($ftype);
+                    }
+                    break;
+                case 6:
+                    if ($ftype == TType::LST) {
+                        $this->jobs = array();
+                        $_size7 = 0;
+                        $_etype10 = 0;
+                        $xfer += $input->readListBegin($_etype10, $_size7);
+                        for ($_i11 = 0; $_i11 < $_size7; ++$_i11)
+                        {
+                            $elem12 = null;
+                            $xfer += $input->readString($elem12);
+                            $this->jobs []= $elem12;
+                        }
+                        $xfer += $input->readListEnd();
+                    } else {
+                        $xfer += $input->skip($ftype);
+                    }
+                    break;
                 default:
                     $xfer += $input->skip($ftype);
                     break;
@@ -172,10 +223,10 @@ class Request {
             {
                 $output->writeMapBegin(TType::STRING, TType::STRING, count($this->params));
                 {
-                    foreach ($this->params as $kiter7 => $viter8)
+                    foreach ($this->params as $kiter13 => $viter14)
                     {
-                        $xfer += $output->writeString($kiter7);
-                        $xfer += $output->writeString($viter8);
+                        $xfer += $output->writeString($kiter13);
+                        $xfer += $output->writeString($viter14);
                     }
                 }
                 $output->writeMapEnd();
@@ -185,6 +236,28 @@ class Request {
         if ($this->trackStatus !== null) {
             $xfer += $output->writeFieldBegin('trackStatus', TType::BOOL, 4);
             $xfer += $output->writeBool($this->trackStatus);
+            $xfer += $output->writeFieldEnd();
+        }
+        if ($this->id !== null) {
+            $xfer += $output->writeFieldBegin('id', TType::STRING, 5);
+            $xfer += $output->writeString($this->id);
+            $xfer += $output->writeFieldEnd();
+        }
+        if ($this->jobs !== null) {
+            if (!is_array($this->jobs)) {
+                throw new TProtocolException('Bad type in structure.', TProtocolException::INVALID_DATA);
+            }
+            $xfer += $output->writeFieldBegin('jobs', TType::LST, 6);
+            {
+                $output->writeListBegin(TType::STRING, count($this->jobs));
+                {
+                    foreach ($this->jobs as $iter15)
+                    {
+                        $xfer += $output->writeString($iter15);
+                    }
+                }
+                $output->writeListEnd();
+            }
             $xfer += $output->writeFieldEnd();
         }
         $xfer += $output->writeFieldStop();

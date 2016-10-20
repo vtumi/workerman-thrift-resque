@@ -25,10 +25,13 @@ $request = new Request();
 $request->queue = 'default';
 $request->job = 'Demo';
 $request->params = ['str' => 'this is a test!'];
+$request->trackStatus = true;
 $response = $client->enqueue($request);
+$status = $client->track($response);
 
 // Print response...
 var_dump($response);
+var_dump($status);
 
 // Close
 $transport->close();
