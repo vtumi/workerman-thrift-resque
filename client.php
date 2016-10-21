@@ -55,6 +55,7 @@ $response = $client->dequeue($request);
 // 查询状态
 /*
 // $request->trackStatus = true; 添加作业时
+$id = '';
 $response = $client->track($id);
 */
 
