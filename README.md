@@ -11,6 +11,11 @@ workerman-thrift-resque
 
 [安装教程](http://redis.cn/download.html)
 
+安装使用Thrift
+----------
+
+[在线文档](http://thrift.apache.org/docs/)
+
 创建项目
 ----------
 
@@ -18,11 +23,6 @@ Composer
 ```sh
 composer create-project --prefer-dist tumi/workerman-thrift-resque:dev-master
 ```
-
-安装使用Thrift
-----------
-
-[在线文档](http://thrift.apache.org/docs/)
 
 管理队列（PHP）
 ----------
@@ -32,13 +32,16 @@ composer create-project --prefer-dist tumi/workerman-thrift-resque:dev-master
 Resque::setBackend('127.0.0.1:6379');
 
 $args = ['str' => 'This is a test!'];
-Resque::enqueue('default', 'Demo', $args);
+$id = Resque::enqueue('default', 'Demo', $args);
 ```
 
 删除作业
 ```php
+Resque::setBackend('127.0.0.1:6379');
+
 Resque::dequeue('default', ['Demo']);
 
+$id = '';
 Resque::dequeue('default', ['Demo' => $id]);
 
 Resque::dequeue('default', ['Demo' => ['str' => 'This is a test!']]);
@@ -48,8 +51,11 @@ Resque::dequeue('default', ['Demo1', 'Demo2']);
 
 查询状态
 ```php
+Resque::setBackend('127.0.0.1:6379');
 // Resque::enqueue('default', 'Demo', $args, true); 添加作业时
-$status = new Resque_Job_Status($token);
+
+$id = '';
+$status = new Resque_Job_Status($id);
 $status->get();
 ```
 
