@@ -24,43 +24,6 @@ Composer
 composer create-project --prefer-dist tumi/workerman-thrift-resque:dev-master
 ```
 
-管理队列（PHP）
-----------
-
-添加作业
-```php
-Resque::setBackend('127.0.0.1:6379');
-
-$args = ['str' => 'This is a test!'];
-$id = Resque::enqueue('default', 'Demo', $args);
-```
-
-删除作业
-```php
-Resque::setBackend('127.0.0.1:6379');
-
-Resque::dequeue('default', ['Demo']);
-
-$id = '';
-Resque::dequeue('default', ['Demo' => $id]);
-
-Resque::dequeue('default', ['Demo' => ['str' => 'This is a test!']]);
-
-Resque::dequeue('default', ['Demo1', 'Demo2']);
-```
-
-查询状态
-```php
-Resque::setBackend('127.0.0.1:6379');
-// Resque::enqueue('default', 'Demo', $args, true); 添加作业时
-
-$id = '';
-$status = new Resque_Job_Status($id);
-$status->get();
-```
-
-通过Thrift RPC（参考client.php）
-
 定义作业处理类
 ----------
 
@@ -118,3 +81,40 @@ php start.php status
 ```sh
 php start.php stop
 ```
+
+管理队列（PHP）
+----------
+
+添加作业
+```php
+Resque::setBackend('127.0.0.1:6379');
+
+$args = ['str' => 'This is a test!'];
+$id = Resque::enqueue('default', 'Demo', $args);
+```
+
+删除作业
+```php
+Resque::setBackend('127.0.0.1:6379');
+
+Resque::dequeue('default', ['Demo']);
+
+$id = '';
+Resque::dequeue('default', ['Demo' => $id]);
+
+Resque::dequeue('default', ['Demo' => ['str' => 'This is a test!']]);
+
+Resque::dequeue('default', ['Demo1', 'Demo2']);
+```
+
+查询状态
+```php
+Resque::setBackend('127.0.0.1:6379');
+// Resque::enqueue('default', 'Demo', $args, true); 添加作业时
+
+$id = '';
+$status = new Resque_Job_Status($id);
+$status->get();
+```
+
+通过Thrift RPC（参考client.php）
