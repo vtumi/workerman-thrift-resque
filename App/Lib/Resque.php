@@ -63,6 +63,30 @@ class Resque
 		return self::$redis;
 	}
 
+    /**
+     * fork() helper method for php-resque that handles issues PHP socket
+     * and phpredis have with passing around sockets between child/parent
+     * processes.
+     *
+     * Will close connection to Redis before forking.
+     *
+     * @return int Return vars as per pcntl_fork(). False if pcntl_fork is unavailable
+     */
+    public static function fork()
+    {
+        if(!function_exists('pcntl_fork')) {
+            return false;
+        }
+        // Close the connection to Redis before forking.
+        // This is a workaround for issues phpredis has.
+        self::$redis = null;
+        $pid = pcntl_fork();
+        if($pid === -1) {
+            throw new RuntimeException('Unable to fork child worker.');
+        }
+        return $pid;
+    }
+
 	/**
 	 * Push a job to the end of a specific queue. If the queue does not
 	 * exist, then create it as well.
