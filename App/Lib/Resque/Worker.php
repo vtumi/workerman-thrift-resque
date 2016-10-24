@@ -157,6 +157,21 @@ class Resque_Worker
                 }
             }
 
+            if($this->child > 0) {
+                // Parent process, sit and wait
+                $status = 'Forked ' . $this->child . ' at ' . strftime('%F %T');
+                $this->updateProcLine($status);
+                $this->logger->log(Psr\Log\LogLevel::INFO, $status);
+                // Wait until the child process finishes before continuing
+                pcntl_wait($status);
+                $exitStatus = pcntl_wexitstatus($status);
+                if($exitStatus !== 0) {
+                    $job->fail(new Resque_Job_DirtyExitException(
+                        'Job exited with exit code ' . $exitStatus
+                    ));
+                }
+            }
+
             $this->child = null;
             $this->doneWorking();
         }
