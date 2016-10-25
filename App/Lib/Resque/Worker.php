@@ -17,6 +17,11 @@ class Resque_Worker
     public $logger;
 
     /**
+     * @var boolean True if on the next iteration, the worker should shutdown.
+     */
+    public $shutdown = false;
+
+    /**
      * @var array Array of all associated queues for this worker.
      */
     private $queues = array();
@@ -132,6 +137,10 @@ class Resque_Worker
         $this->startup();
 
         while (true) {
+            if($this->shutdown) {
+                break;
+            }
+
             // Attempt to find and reserve a job
             if ($blocking === true) {
                 $this->logger->log(Psr\Log\LogLevel::INFO, 'Starting blocking with timeout of {interval}', array('interval' => $interval));
@@ -167,6 +176,8 @@ class Resque_Worker
 
             $this->doneWorking();
         }
+
+        $this->unregisterWorker();
     }
 
     /**

@@ -58,7 +58,7 @@ class ResqueWorker extends Worker
             $worker->work($this->interval);
         };
         $this->onWorkerStop = function () use (&$worker) {
-            $worker->unregisterWorker();
+            $worker->shutdown = true;
         };
     }
 }
