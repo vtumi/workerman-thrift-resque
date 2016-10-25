@@ -37,11 +37,6 @@ class Resque_Worker
     private $currentJob = null;
 
     /**
-     * @var int Process ID of child worker processes.
-     */
-    private $child = null;
-
-    /**
      * Instantiate a new worker, given a list of queues that it should be working
      * on. The list of queues should be supplied in the priority that they should
      * be checked for jobs (first come, first served)
@@ -144,35 +139,11 @@ class Resque_Worker
             Resque_Event::trigger('beforeFork', $job);
             $this->workingOn($job);
 
-            $this->child = Resque::fork();
+            $status = 'Processing ' . $job->queue . ' since ' . strftime('%F %T');
+            $this->updateProcLine($status);
+            $this->logger->log(Psr\Log\LogLevel::INFO, $status);
+            $this->perform($job);
 
-            // Forked and we're the child. Run the job.
-            if ($this->child === 0 || $this->child === false) {
-                $status = 'Processing ' . $job->queue . ' since ' . strftime('%F %T');
-                $this->updateProcLine($status);
-                $this->logger->log(Psr\Log\LogLevel::INFO, $status);
-                $this->perform($job);
-                if ($this->child === 0) {
-                    exit(0);
-                }
-            }
-
-            if($this->child > 0) {
-                // Parent process, sit and wait
-                $status = 'Forked ' . $this->child . ' at ' . strftime('%F %T');
-                $this->updateProcLine($status);
-                $this->logger->log(Psr\Log\LogLevel::INFO, $status);
-                // Wait until the child process finishes before continuing
-                pcntl_wait($status);
-                $exitStatus = pcntl_wexitstatus($status);
-                if($exitStatus !== 0) {
-                    $job->fail(new Resque_Job_DirtyExitException(
-                        'Job exited with exit code ' . $exitStatus
-                    ));
-                }
-            }
-
-            $this->child = null;
             $this->doneWorking();
         }
     }
