@@ -120,19 +120,40 @@ class Resque_Worker
     }
 
     /**
-     * The loop for a worker.
+     * The primary loop for a worker which when called on an instance starts
+     * the worker's life cycle.
      *
-     * Queues are checked for new jobs.
+     * Queues are checked every $interval (seconds) for new jobs.
+     *
+     * @param int $interval How often to check for new jobs across the queues.
      */
-    public function work()
+    public function work($interval, $blocking = false)
     {
+        $this->startup();
+
         while (true) {
             // Attempt to find and reserve a job
-            $this->updateProcLine('Waiting for ' . implode(',', $this->queues));
-            $job = $this->reserve();
+            if ($blocking === true) {
+                $this->logger->log(Psr\Log\LogLevel::INFO, 'Starting blocking with timeout of {interval}', array('interval' => $interval));
+                $this->updateProcLine('Waiting for ' . implode(',', $this->queues) . ' with blocking timeout ' . $interval);
+            } else {
+                $this->updateProcLine('Waiting for ' . implode(',', $this->queues) . ' with interval ' . $interval);
+            }
+
+            $job = $this->reserve($blocking, $interval);
 
             if (!$job) {
-                return;
+                // For an interval of 0, break now - helps with unit testing etc
+                if ($interval == 0) {
+                    break;
+                }
+                if ($blocking === false) {
+                    // If no job was found, we sleep for $interval before continuing and checking again
+                    $this->logger->log(Psr\Log\LogLevel::INFO, 'Sleeping for {interval}', array('interval' => $interval));
+                    $this->updateProcLine('Waiting for ' . implode(',', $this->queues));
+                    usleep($interval * 1000000);
+                }
+                continue;
             }
 
             $this->logger->log(Psr\Log\LogLevel::NOTICE, 'Starting work on {job}', array('job' => $job));
@@ -225,7 +246,7 @@ class Resque_Worker
     /**
      * Perform necessary actions to start a worker.
      */
-    public function startup()
+    private function startup()
     {
         $this->updateProcLine('Starting');
         $this->pruneDeadWorkers();

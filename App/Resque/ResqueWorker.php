@@ -55,10 +55,7 @@ class ResqueWorker extends Worker
             $worker = new Resque_Worker($queues);
             $worker->setLogger($logger);
             $logger->log(LogLevel::NOTICE, 'Starting worker {worker}', array('worker' => $worker));
-            $worker->startup();
-            Timer::add($this->interval, function () use ($worker) {
-                $worker->work();
-            });
+            $worker->work($this->interval);
         };
         $this->onWorkerStop = function () use (&$worker) {
             $worker->unregisterWorker();
