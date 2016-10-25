@@ -10,6 +10,8 @@ class Resque
 {
 	const VERSION = '1.2';
 
+    const DEFAULT_INTERVAL = 5;
+
 	/**
 	 * @var Resque_Redis Instance of Resque_Redis that talks to redis.
 	 */

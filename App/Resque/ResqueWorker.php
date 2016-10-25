@@ -40,6 +40,12 @@ class ResqueWorker extends Worker
     public $interval = 1;
 
     /**
+     * 设置是否堵塞
+     * @var boolean
+     */
+    public $blocking = false;
+
+    /**
      * construct
      */
     public function __construct()
@@ -55,10 +61,22 @@ class ResqueWorker extends Worker
             $worker = new Resque_Worker($queues);
             $worker->setLogger($logger);
             $logger->log(LogLevel::NOTICE, 'Starting worker {worker}', array('worker' => $worker));
-            $worker->work($this->interval);
+            $worker->startup();
+
+            $interval = $this->interval;
+            if ($this->blocking) {
+                Timer::add(0.5, function () use ($worker, $interval) {
+                    $worker->work($interval, true);
+                });
+            } else {
+                Timer::add($interval, function () use ($worker, $interval) {
+                    $worker->work($interval);
+                });
+            }
+
         };
         $this->onWorkerStop = function () use (&$worker) {
-            $worker->shutdown = true;
+            $worker->unregisterWorker();
         };
     }
 }
