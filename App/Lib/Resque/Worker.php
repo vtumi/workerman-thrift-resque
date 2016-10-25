@@ -140,16 +140,16 @@ class Resque_Worker
             if (!$job) {
                 // For an interval of 0, break now - helps with unit testing etc
                 if ($interval == 0) {
-                    return;
+                    break;
                 }
 
                 if ($blocking === false) {
                     // If no job was found, we sleep for $interval before continuing and checking again
                     $this->logger->log(Psr\Log\LogLevel::INFO, 'Sleeping for {interval}', array('interval' => $interval));
                     $this->updateProcLine('Waiting for ' . implode(',', $this->queues));
-                }
 
-                return;
+                    return;
+                }
             }
 
             $this->logger->log(Psr\Log\LogLevel::NOTICE, 'Starting work on {job}', array('job' => $job));
