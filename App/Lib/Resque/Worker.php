@@ -150,6 +150,8 @@ class Resque_Worker
 
                     return;
                 }
+
+                continue;
             }
 
             $this->logger->log(Psr\Log\LogLevel::NOTICE, 'Starting work on {job}', array('job' => $job));
