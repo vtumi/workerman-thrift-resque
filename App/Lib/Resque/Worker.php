@@ -126,45 +126,36 @@ class Resque_Worker
      */
     public function work($interval = Resque::DEFAULT_INTERVAL, $blocking = false)
     {
-        while (true) {
-            // Attempt to find and reserve a job
-            if ($blocking === true) {
-                $this->logger->log(Psr\Log\LogLevel::INFO, 'Starting blocking with timeout of {interval}', array('interval' => $interval));
-                $this->updateProcLine('Waiting for ' . implode(',', $this->queues) . ' with blocking timeout ' . $interval);
-            } else {
-                $this->updateProcLine('Waiting for ' . implode(',', $this->queues) . ' with interval ' . $interval);
-            }
-
-            $job = $this->reserve($blocking, $interval);
-
-            if (!$job) {
-                // For an interval of 0, break now - helps with unit testing etc
-                if ($interval == 0) {
-                    break;
-                }
-
-                if ($blocking === false) {
-                    // If no job was found, we sleep for $interval before continuing and checking again
-                    $this->logger->log(Psr\Log\LogLevel::INFO, 'Sleeping for {interval}', array('interval' => $interval));
-                    $this->updateProcLine('Waiting for ' . implode(',', $this->queues));
-
-                    return;
-                }
-
-                continue;
-            }
-
-            $this->logger->log(Psr\Log\LogLevel::NOTICE, 'Starting work on {job}', array('job' => $job));
-            Resque_Event::trigger('beforeFork', $job);
-            $this->workingOn($job);
-
-            $status = 'Processing ' . $job->queue . ' since ' . strftime('%F %T');
-            $this->updateProcLine($status);
-            $this->logger->log(Psr\Log\LogLevel::INFO, $status);
-            $this->perform($job);
-
-            $this->doneWorking();
+        // Attempt to find and reserve a job
+        if ($blocking === true) {
+            $this->logger->log(Psr\Log\LogLevel::INFO, 'Starting blocking with timeout of {interval}', array('interval' => $interval));
+            $this->updateProcLine('Waiting for ' . implode(',', $this->queues) . ' with blocking timeout ' . $interval);
+        } else {
+            $this->updateProcLine('Waiting for ' . implode(',', $this->queues) . ' with interval ' . $interval);
         }
+
+        $job = $this->reserve($blocking, $interval);
+
+        if (!$job) {
+            if ($blocking === false) {
+                // If no job was found, we sleep for $interval before continuing and checking again
+                $this->logger->log(Psr\Log\LogLevel::INFO, 'Sleeping for {interval}', array('interval' => $interval));
+                $this->updateProcLine('Waiting for ' . implode(',', $this->queues));
+            }
+
+            return;
+        }
+
+        $this->logger->log(Psr\Log\LogLevel::NOTICE, 'Starting work on {job}', array('job' => $job));
+        Resque_Event::trigger('beforeFork', $job);
+        $this->workingOn($job);
+
+        $status = 'Processing ' . $job->queue . ' since ' . strftime('%F %T');
+        $this->updateProcLine($status);
+        $this->logger->log(Psr\Log\LogLevel::INFO, $status);
+        $this->perform($job);
+
+        $this->doneWorking();
     }
 
     /**

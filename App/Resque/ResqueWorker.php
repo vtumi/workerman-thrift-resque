@@ -65,7 +65,9 @@ class ResqueWorker extends Worker
 
             $interval = $this->interval;
             if ($this->blocking) {
-                $worker->work($interval, true);
+                Timer::add(0.001, function () use ($worker, $interval) {
+                    $worker->work($interval, true);
+                });
             } else {
                 Timer::add($interval, function () use ($worker, $interval) {
                     $worker->work($interval);
