@@ -13,7 +13,7 @@
  */
 namespace App\Thrift;
 
-use Workerman\Worker;
+use App\Worker;
 use Thrift\Transport\TSocket;
 
 class ThriftWorker extends Worker

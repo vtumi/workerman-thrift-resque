@@ -6,7 +6,7 @@
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use Workerman\Worker;
+use App\Worker;
 use App\Thrift\ThriftWorker;
 use App\Resque\ResqueWorker;
 
