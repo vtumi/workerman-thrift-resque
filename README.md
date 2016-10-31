@@ -40,20 +40,6 @@ class Demo
 }
 ```
 
-延时作业
-```php
-namespace App\Resque\Job;
-
-class Demo
-{
-    public function perform()
-    {
-        sleep(300);
-        \Workerman\Worker::log($this->args['str']);
-    }
-}
-```
-
 启动停止
 ----------
 
@@ -99,7 +85,6 @@ Resque::setBackend('127.0.0.1:6379');
 
 Resque::dequeue('default', ['Demo']);
 
-$id = '';
 Resque::dequeue('default', ['Demo' => $id]);
 
 Resque::dequeue('default', ['Demo' => ['str' => 'This is a test!']]);
