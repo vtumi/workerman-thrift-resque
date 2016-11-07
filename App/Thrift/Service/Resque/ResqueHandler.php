@@ -9,7 +9,8 @@ class ResqueHandler implements ResqueIf
     public function enqueue(Request $request)
     {
         if ($request->job) {
-            return Resque::enqueue($request->queue, "\\App\\Resque\\Job\\" . $request->job, $request->params, $request->trackStatus);
+            return Resque::enqueue($request->queue, "\\App\\Resque\\Job\\" . $request->job, $request->params,
+                $request->trackStatus);
         }
 
         return false;
